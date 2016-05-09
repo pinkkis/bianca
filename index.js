@@ -22,3 +22,15 @@ let botOptions = {
 
 let bot = new Bot(botOptions);
 bot.connect();
+
+let xyzzy = /xyzzy/i;
+
+bot.on('message', (message) => {
+	if (xyzzy.test(message.body)) {
+		bot.postMessage(message.from, 'Nothing happens...');
+	}
+});
+
+bot.on('atMention', (message) => {
+	bot.postMessage(message.from, 'Hey there');
+});
