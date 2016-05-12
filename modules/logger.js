@@ -7,24 +7,13 @@ const argv = require('yargs');
 
 const logDir = path.normalize(__dirname + '/../logs');
 
-function createLogDirectory() {
-	try {
-		fs.ensureDirSync(logDir);
-	} catch (err) {
-		console.error(`## Logger failed to create log directory at ${logDir} with ${err}`);
-	} finally {
-		// TODO
-		// what if this fails?
-	}
-}
-
 let logger = new winston.Logger({
 	transports: [
 		new winston.transports.File({
 			// logstash: true
 			name: 'info-log',
 			level: 'info',
-			filename: logDir + '/all-logs.log',
+			filename: `${logDir}/all-logs.log`,
 			handleExceptions: true,
 			json: true,
 			maxsize: 5242880, //5MB
@@ -37,7 +26,7 @@ let logger = new winston.Logger({
 			// logstash: true
 			name: 'error-log',
 			level: 'error',
-			filename: logDir + '/error-logs.log',
+			filename: `${logDir}/error-logs.log`,
 			handleExceptions: true,
 			json: true,
 			maxsize: 5242880, //5MB
@@ -50,7 +39,6 @@ let logger = new winston.Logger({
 			name: 'debug-output',
 			level: 'debug',
 			handleExceptions: true,
-			//json: true,
 			prettyPrint: true,
 			colorize: true
 		})
@@ -70,3 +58,15 @@ logger.stream = {
 logger.createLogDirectory = createLogDirectory;
 
 module.exports = logger;
+
+// methods
+function createLogDirectory() {
+	try {
+		fs.ensureDirSync(logDir);
+	} catch (err) {
+		throw new Error(`## Logger failed to create log directory at ${logDir} with ${err}`);
+	} finally {
+		// TODO
+		// what if this fails?
+	}
+}

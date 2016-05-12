@@ -17,7 +17,10 @@ gulp.task('default', () => {
 
 gulp.task('test', () => {
 	return gulp
-			.src('test/**/*.spec.js', { read: false })
+			.src([
+				'**/*.spec.js',
+				'!node_modules/**/*'
+			], { read: false })
 			.pipe(mocha({
 				require: ['./test/helpers/chai.js']
 			}));

@@ -1,29 +1,21 @@
 'use strict';
 
-const util = require('util');
-const fs = require('fs-extra');
-const argv = require('yargs').argv;
-
 const config = require('./modules/config');
 const logger = require('./modules/logger');
-logger.createLogDirectory();
-// const redis = require('./modules/redis');
+const web = require('./modules/web');
+const appComm = require('./modules/appComm');
 
-const Bot = require('./class/bot');
+// init app based on type and options
+let bot = require('./modules/botInit');
 
-let botOptions = {
-	reconnect: true,
-	keepAliveTime: 60000,
-	jid: argv.jid,
-	password: argv.password,
-	host: 'chat.hipchat.com',
-	mucHost: 'conf.hipchat.com'
-};
-
-let bot = new Bot(botOptions);
 bot.connect();
 
 let xyzzy = /xyzzy/i;
+
+bot.on('connected', () => {
+	appComm.bot = bot;
+	appComm.emit('bot');
+});
 
 bot.on('message', (message) => {
 	if (xyzzy.test(message.body)) {
@@ -32,5 +24,13 @@ bot.on('message', (message) => {
 });
 
 bot.on('atMention', (message) => {
-	bot.postMessage(message.from, 'Hey there');
+	bot.postMessage(message.from, `Hey there, ${message.from.getResource()}`);
+});
+
+bot.on('nameMention', (message) => {
+	bot.postMessage(message.channel, `yup`);
+});
+
+bot.on('channelMention', (message) => {
+	bot.postMessage(message.channel, `Present!`);
 });

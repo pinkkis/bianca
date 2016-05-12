@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title></title>
+	<meta charset="UTF-8">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12">
+			<h2>Bianca bot</h2>
+			<div id="profile"></div>
+			<hr>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<div id="messages"></div>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		let socket = io.connect('//');
+		socket.on('message', (data) => {
+			console.log(data);
+			$("#messages").append(`<div><strong>${data.from.resource}</strong> ${data.body}</div>`);
+		});
+
+		socket.on('profile', (profile) => {
+			console.log(profile);
+			$("#profile").html(`<img src="${profile.photo_small}"> <span>${profile.name}</span> connected`);
+		});
+	</script>
+</body>
+
+</html>
