@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
 	});
 
 	appComm.bot && appComm.bot.on('message', (message) => {
-		socket.emit('message', message);
+		socket.volatile.emit('message', message);
 	});
 
 	if (appComm.bot) {
