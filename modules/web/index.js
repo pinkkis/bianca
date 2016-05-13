@@ -1,7 +1,8 @@
 'use strict';
 
 const config = require('../config');
-const app = require('express')();
+const express = require('express');
+const app = express();
 const bodyParser = require('body-parser');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -14,27 +15,58 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
-app.get('/', (req, res) => {
-	res.sendFile(__dirname + '/public/index.html');
-});
+app.use('/', express.static(`${__dirname}/public`));
+
+// app.get('/', (req, res) => {
+// 	res.sendFile(__dirname + '/public/index.html');
+// });
 
 io.on('connection', (socket) => {
 	logger.debug('socket#connect');
-	socket.emit('news', { hello: 'world' });
 
-	socket.on('someEvent', (data) => {
-		logger.debug('socket#someEvent', data);
+	socket.emit('botConnected', {
+		rooms: appComm.bot.rooms,
+		roster: appComm.bot.roster,
+		profile: appComm.bot.profile
+	});
+
+	appComm.bot && appComm.bot.on('roomsUpdate', (rooms) => {
+		socket.emit('roomsUpdate', rooms);
+	});
+
+	appComm.bot && appComm.bot.on('rosterUpdate', (roster) => {
+		socket.emit('rosterUpdate', roster);
 	});
 
 	appComm.bot && appComm.bot.on('message', (message) => {
-		socket.volatile.emit('message', message);
+		socket.volatile.emit('botMessage', message);
+	});
+
+	appComm.bot && appComm.bot.on('disconnected', (message) => {
+		socket.emit('botDisconnected', message);
+	});
+
+	appComm.bot && appComm.bot.on('reconnecting', (message) => {
+		socket.emit('botReconnecting', message);
+	});
+
+	appComm.bot && appComm.bot.on('offline', (message) => {
+		socket.emit('botOffline', message);
+	});
+
+	appComm.bot && appComm.bot.on('error', (message) => {
+		socket.emit('botError', message);
+	});
+
+	appComm.bot && appComm.bot.on('startup', (message) => {
+		socket.emit('botStartup', message);
 	});
 
 	if (appComm.bot) {
-		socket.emit('profile', appComm.bot.profile);
+		socket.emit('botProfile', appComm.bot.profile);
 	} else {
-		appComm.bot.once('profile', (profile) => {
-			socket.emit('profile', profile);
+		appComm.bot.on('profile', (profile) => {
+			socket.emit('botProfile', appComm.bot.profile);
 		});
 	}
 });
@@ -44,12 +76,7 @@ server.listen(3000, '0.0.0.0', () => {
 });
 
 process.on('SIGTERM', shutdown);
-//process.on('SIGUSR2', shutdown);
 
 function shutdown() {
-	logger.warn('Termination signal received, express server closing...');
-
-	// server.close(() => {
- 	// 	//process.exit(0);
-	// });
+	logger.warn('Express - Termination signal received');
 }

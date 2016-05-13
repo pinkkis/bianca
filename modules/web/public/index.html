@@ -10,32 +10,105 @@
 <body class="container-fluid">
 	<div class="row">
 		<div class="col-xs-12">
-			<h2>Bianca bot</h2>
+			<h2>Bianca status page</h2>
 			<div id="profile"></div>
-			<hr>
 		</div>
 	</div>
 
 	<div class="row">
 		<div class="col-xs-12">
+			<hr>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-6">
+			<h3>Messages</h3>
 			<div id="messages"></div>
+		</div>
+		<div class="col-sm-3">
+			<h3>Roster</h3>
+			<div id="roster"></div>
+		</div>
+		<div class="col-sm-3">
+			<h3>Rooms</h3>
+			<div id="rooms"></div>
 		</div>
 	</div>
 
 	<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		let socket = io();
-		socket.on('message', (data) => {
-			console.log(data);
-			$("#messages").append(`<div><strong>${data.from.resource}</strong> ${data.body}</div>`);
+		let botRooms = [];
+		let botRoster = [];
+
+		socket.on('connect', (data) => {
+			console.log('conn',data);
 		});
 
-		socket.on('profile', (profile) => {
+		socket.on('reconnect', (data) => {
+			console.log('reconn', data);
+		});
+
+		socket.on('reconnecting', (data) => {
+			console.log('reconnecting',data);
+		});
+
+		socket.on('botMessage', (data) => {
+			console.log(data);
+			let channelIdx = botRooms.map((c) => {
+				return c.jid.local;
+			}).indexOf(data.channel.local);
+
+			$("#messages").append(`<div><strong>${botRooms[channelIdx].name}</strong>[${data.from.resource}] ${data.body}</div>`);
+		});
+
+		socket.on('botProfile', (profile) => onProfile);
+
+		socket.on('botConnected', (payload) => {
+			onProfile(payload.profile);
+			onRooms(payload.rooms);
+			onRoster(payload.roster);
+		});
+
+		socket.on('botRooms', (rooms) => onRooms);
+
+		socket.on('botRoster', (roster) => onRoster);
+
+		function onProfile(profile) {
+			if (!profile) {return;}
 			console.log(profile);
 			$("#profile").html(`<img src="${profile.photo_small}"> <span>${profile.name}</span> connected`);
-		});
+		}
+
+		function onRoster(roster) {
+			if (!roster) {return;}
+			console.log(roster);
+
+			botRoster = roster;
+
+			let rosterhtml = roster.map((person) => {
+				return `<div>${person.name}</div>`;
+			});
+
+			$("#roster").html(rosterhtml);
+		}
+
+		function onRooms(rooms) {
+			if (!rooms) {return;}
+			console.log(rooms);
+
+			botRooms = rooms;
+
+			let roomshtml = rooms.map((room) => {
+				return `<div>${room.name} (${room.num_participants})</div>`;
+			});
+
+			$("#rooms").html(roomshtml);
+		}
 	</script>
 </body>
 

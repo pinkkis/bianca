@@ -23,6 +23,11 @@ bot.on('message', (message) => {
 	}
 });
 
+bot.on('botCommand', (message) => {
+	appComm.emit('botCommand', message);
+	bot.postMessage(message.from, `Sorry, command <${message.commandParams[1]}|${message.commandParams[2]}> not recognized.`);
+});
+
 bot.on('atMention', (message) => {
 	bot.postMessage(message.from, `Hey there, ${message.from.getResource()}`);
 });
