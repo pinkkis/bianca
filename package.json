@@ -10,7 +10,11 @@
   "scripts": {
     "test": "node node_modules/gulp/bin/gulp test"
   },
-  "keywords": ["bot", "chat", "hipchat"],
+  "keywords": [
+    "bot",
+    "chat",
+    "hipchat"
+  ],
   "author": "@pinkkis",
   "license": "MIT",
   "dependencies": {
@@ -23,6 +27,8 @@
     "gulp": "^3.9.1",
     "morgan": "^1.7.0",
     "node-xmpp-client": "^3.0.0",
+    "passport": "^0.3.2",
+    "passport-http": "^0.3.0",
     "redis": "^2.6.0-2",
     "socket.io": "^1.4.6",
     "uuid": "^2.0.2",
