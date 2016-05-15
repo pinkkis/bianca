@@ -6,8 +6,22 @@ const app = express();
 const bodyParser = require('body-parser');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const passport = require('passport');
+const BasicStrategy = require('passport-http').BasicStrategy;
 const logger = require('../logger');
 const appState = require('../appState');
+
+passport.use(new BasicStrategy(
+	function (username, password, done) {
+		if (username === 'foo' && password === 'bar') {
+			return done(null, {
+				username: 'foo'
+			});
+		} else {
+			return done(null, null);
+		}
+	}
+));
 
 app.set('port', process.env.WEB_PORT || config.web.port || 6500);
 app.use(bodyParser.json());
@@ -15,14 +29,13 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
-app.use('/', express.static(`${__dirname}/public`));
-
-// app.get('/', (req, res) => {
-// 	res.sendFile(__dirname + '/public/index.html');
-// });
+//app.use('/', express.static(`${__dirname}/public`));
+app.use('/', passport.authenticate('basic', {session: false}), (req, res) => {
+	res.sendFile(`${__dirname}/public/index.html`);
+});
 
 io.on('connection', (socket) => {
-	logger.debug('socket#connect');
+	logger.debug('web:socket#connect');
 
 	socket.emit('botConnected', {
 		rooms: appState.bot.rooms,
