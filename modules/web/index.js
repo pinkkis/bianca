@@ -9,7 +9,7 @@ const io = require('socket.io')(server);
 const logger = require('../logger');
 const appState = require('../appState');
 
-app.set('port', process.env.WEB_PORT || config.web.port || 3000);
+app.set('port', process.env.WEB_PORT || config.web.port || 6500);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended: true
@@ -71,8 +71,8 @@ io.on('connection', (socket) => {
 	}
 });
 
-server.listen(3000, '0.0.0.0', () => {
-	logger.info(`Express listening on port 3000`);
+server.listen(app.get('port'), '0.0.0.0', () => {
+	logger.info(`Express listening on port ${app.get('port')}...`);
 });
 
 process.on('SIGTERM', shutdown);

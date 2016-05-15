@@ -7,12 +7,18 @@ let config = {
 	credentials: {
 		username: argv.username,
 		password: argv.password
-	}
+	}//,
+	// web: {},
+	// redis: {}
 };
 
 if (argv.type) {
 	config.botType = argv.type;
 }
+
+// if (argv.webport) {
+// 	config.web.port = argv.webport;
+// }
 
 /**
  * Get package json details

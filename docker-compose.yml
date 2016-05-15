@@ -1,0 +1,17 @@
+version: "2"
+services:
+    bot:
+        build: ./
+        restart: always
+        ports:
+            - "6500:80"
+        links:
+            - redis
+        env_file:
+            - ./config/common.env
+            - ./config/secret.env
+    redis:
+        image: redis:alpine
+        restart: always
+        ports:
+            - "6379:6379"

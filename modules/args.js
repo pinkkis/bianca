@@ -18,8 +18,16 @@ const argv = require('yargs')
 		demand: false,
 		default: 'hipchat'
 	})
+	.option('webport', {
+		alias: 'w',
+		describe: 'run web interface on this port',
+		demand: false,
+		default: '6500'
+	})
 	.help()
 	.wrap(70)
 	.argv;
+
+	console.log('Command line arguments', argv);
 
 module.exports = argv;

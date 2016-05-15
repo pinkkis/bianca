@@ -7,9 +7,10 @@
 		"mucHost": "conf.hipchat.com"
 	},
 	"web": {
-		"port": 3000
+		"port": 6500
 	},
 	"redis": {
-		"host": "dockerhost"
+		"host": "dockerhost",
+		"port": 6379
 	}
 }
