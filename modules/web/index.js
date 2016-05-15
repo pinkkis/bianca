@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const logger = require('../logger');
-const appComm = require('../appComm');
+const appState = require('../appState');
 
 app.set('port', process.env.WEB_PORT || config.web.port || 3000);
 app.use(bodyParser.json());
@@ -25,48 +25,48 @@ io.on('connection', (socket) => {
 	logger.debug('socket#connect');
 
 	socket.emit('botConnected', {
-		rooms: appComm.bot.rooms,
-		roster: appComm.bot.roster,
-		profile: appComm.bot.profile
+		rooms: appState.bot.rooms,
+		roster: appState.bot.roster,
+		profile: appState.bot.profile
 	});
 
-	appComm.bot && appComm.bot.on('roomsUpdate', (rooms) => {
+	appState.bot && appState.bot.on('roomsUpdate', (rooms) => {
 		socket.emit('roomsUpdate', rooms);
 	});
 
-	appComm.bot && appComm.bot.on('rosterUpdate', (roster) => {
+	appState.bot && appState.bot.on('rosterUpdate', (roster) => {
 		socket.emit('rosterUpdate', roster);
 	});
 
-	appComm.bot && appComm.bot.on('message', (message) => {
+	appState.bot && appState.bot.on('message', (message) => {
 		socket.volatile.emit('botMessage', message);
 	});
 
-	appComm.bot && appComm.bot.on('disconnected', (message) => {
+	appState.bot && appState.bot.on('disconnected', (message) => {
 		socket.emit('botDisconnected', message);
 	});
 
-	appComm.bot && appComm.bot.on('reconnecting', (message) => {
+	appState.bot && appState.bot.on('reconnecting', (message) => {
 		socket.emit('botReconnecting', message);
 	});
 
-	appComm.bot && appComm.bot.on('offline', (message) => {
+	appState.bot && appState.bot.on('offline', (message) => {
 		socket.emit('botOffline', message);
 	});
 
-	appComm.bot && appComm.bot.on('error', (message) => {
+	appState.bot && appState.bot.on('error', (message) => {
 		socket.emit('botError', message);
 	});
 
-	appComm.bot && appComm.bot.on('startup', (message) => {
+	appState.bot && appState.bot.on('startup', (message) => {
 		socket.emit('botStartup', message);
 	});
 
-	if (appComm.bot) {
-		socket.emit('botProfile', appComm.bot.profile);
+	if (appState.bot) {
+		socket.emit('botProfile', appState.bot.profile);
 	} else {
-		appComm.bot.on('profile', (profile) => {
-			socket.emit('botProfile', appComm.bot.profile);
+		appState.bot.on('profile', (profile) => {
+			socket.emit('botProfile', appState.bot.profile);
 		});
 	}
 });

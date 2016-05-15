@@ -3,6 +3,7 @@
 const config = require('./config');
 const redis = require('redis');
 const logger = require('./logger');
+const appState = require('./appState');
 
 let clientOpts = {
 	host: config.redis.host

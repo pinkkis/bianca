@@ -2,40 +2,19 @@
 
 const config = require('./modules/config');
 const logger = require('./modules/logger');
+const redis = require('./modules/redis');
 const web = require('./modules/web');
-const appComm = require('./modules/appComm');
+const appState = require('./modules/appState');
 
 // init app based on type and options
 let bot = require('./modules/botInit');
 
-bot.connect();
-
-let xyzzy = /xyzzy/i;
-
-bot.on('connected', () => {
-	appComm.bot = bot;
-	appComm.emit('bot');
+appState.bot = bot;
+appState.bot.connect();
+appState.bot.on('connected', () => {
+	appState.emit('botConnected');
 });
 
-bot.on('message', (message) => {
-	if (xyzzy.test(message.body)) {
-		bot.postMessage(message.from, 'Nothing happens...');
-	}
-});
-
-bot.on('botCommand', (message) => {
-	appComm.emit('botCommand', message);
-	bot.postMessage(message.from, `Sorry, command <${message.commandParams[1]}|${message.commandParams[2]}> not recognized.`);
-});
-
-bot.on('atMention', (message) => {
-	bot.postMessage(message.from, `Hey there, ${message.from.getResource()}`);
-});
-
-bot.on('nameMention', (message) => {
-	bot.postMessage(message.channel, `yup`);
-});
-
-bot.on('channelMention', (message) => {
-	bot.postMessage(message.channel, `Present!`);
-});
+// init messageParser and responder
+let messageReader = require('./modules/messageReader');
+let messageResponder = require('./modules/responder');

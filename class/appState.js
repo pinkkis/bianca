@@ -2,7 +2,7 @@
 
 const EventEmitter = require('events');
 
-class AppComm extends EventEmitter {
+class AppState extends EventEmitter {
 	constructor() {
 		super();
 
@@ -35,4 +35,4 @@ class AppComm extends EventEmitter {
 	}
 }
 
-module.exports = AppComm;
+module.exports = AppState;

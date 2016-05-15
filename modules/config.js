@@ -1,7 +1,7 @@
 'use strict';
 
 const pkg = require('../package.json');
-const argv = require('yargs').argv;
+const argv = require('./args');
 
 let config = {
 	credentials: {
