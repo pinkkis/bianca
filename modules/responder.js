@@ -23,7 +23,7 @@ bot.on('botCommand', (message) => {
 });
 
 bot.on('atMention', (message) => {
-	bot.postMessage(message.from, `Hey there, ${message.from.getResource()}`);
+	bot.postMessage(message.from, `Hey there, ${message.from.getResource()}...`);
 });
 
 bot.on('nameMention', (message) => {
@@ -35,7 +35,7 @@ bot.on('channelMention', (message) => {
 });
 
 bot.on('parsedMessage', (message) => {
-
+	// do nothing
 });
 
 module.exports = responder;
