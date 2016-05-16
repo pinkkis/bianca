@@ -5,6 +5,7 @@
 	<title></title>
 	<meta charset="UTF-8">
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
 </head>
 
 <body class="container-fluid">
@@ -44,24 +45,25 @@
 		let socket = io();
 		let botRooms = [];
 		let botRoster = [];
+		let botPresences = [];
 
 		socket.on('connect', (data) => {
-			console.log('conn',data);
+			console.info('Websocket connected to bot...');
 		});
 
 		socket.on('reconnect', (data) => {
-			console.log('reconn', data);
+			console.info('Websocket reconnected', data);
 		});
 
 		socket.on('reconnecting', (data) => {
-			console.log('reconnecting',data);
+			console.warn('Websocket reconnecting', data);
 		});
 
 		socket.on('botMessage', (data) => {
 			console.log(data);
 			let channelIdx = botRooms.map((c) => {
 				return c.jid.local;
-			}).indexOf(data.channel.local);
+			}).indexOf(data.channel ? data.channel.local : -1);
 
 			$("#messages").append(`<div><strong>${botRooms[channelIdx].name}</strong>[${data.from.resource}] ${data.body}</div>`);
 		});
@@ -69,32 +71,34 @@
 		socket.on('botProfile', (profile) => onProfile);
 
 		socket.on('botConnected', (payload) => {
+			console.log(payload);
 			onProfile(payload.profile);
 			onRooms(payload.rooms);
 			onRoster(payload.roster);
+			onPresence(payload.presences);
 		});
 
-		socket.on('botRooms', (rooms) => onRooms);
-
-		socket.on('botRoster', (roster) => onRoster);
+		socket.on('botRooms', onRooms);
+		socket.on('botRoster', onRoster);
+		socket.on('botPresence', onPresence);
 
 		function onProfile(profile) {
 			if (!profile) {return;}
-			console.log(profile);
 			$("#profile").html(`<img src="${profile.photo_small}"> <span>${profile.name}</span> connected`);
 		}
 
 		function onRoster(roster) {
 			if (!roster) {return;}
-			console.log(roster);
-
 			botRoster = roster;
+			drawRoster();
+		}
 
-			let rosterhtml = roster.map((person) => {
-				return `<div>${person.name}</div>`;
-			});
+		function onPresence(presences) {
+			console.debug(presences);
 
-			$("#roster").html(rosterhtml);
+			if (!presences) {return;}
+			botPresences = presences;
+			drawRoster();
 		}
 
 		function onRooms(rooms) {
@@ -103,11 +107,55 @@
 
 			botRooms = rooms;
 
-			let roomshtml = rooms.map((room) => {
+			let roomshtml = botRooms.map((room) => {
 				return `<div>${room.name} (${room.num_participants})</div>`;
 			});
 
 			$("#rooms").html(roomshtml);
+		}
+
+		function drawRoster() {
+			let people = [];
+
+			botRoster.forEach((r) => {
+				let rjid = r.jid.split('@')[0];
+				let parr = botPresences.map((p) => {
+					return p.user.local;
+				});
+				let presIdx = parr.indexOf(rjid);
+
+				if (presIdx > -1) {
+					r.status = botPresences[presIdx].show;
+					r.client = botPresences[presIdx].client_type;
+				} else {
+					r.status = 'unknown';
+					r.client = '';
+				}
+
+				people.push(r);
+			});
+
+			let rosterhtml = people.map((person) => {
+				let icon = statusIcon(person.status);
+				return `<div>${icon} ${person.name}</div>`;
+			});
+
+			$("#roster").html(rosterhtml);
+		}
+
+		function statusIcon(status) {
+			switch (status) {
+				case 'away':
+					return `<i class="fa fa-user text-warning"></i>`;
+				case 'chat':
+					return `<i class="fa fa-user text-success"></i>`;
+				case 'dnd':
+					return `<i class="fa fa-user text-danger"></i>`;
+				case null:
+					return `<i class="fa fa-question text-muted"></i>`;
+				default:
+					return `<i class="fa fa-question-circle-o"></i>`;
+			}
 		}
 	</script>
 </body>

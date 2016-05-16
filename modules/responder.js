@@ -38,4 +38,9 @@ bot.on('parsedMessage', (message) => {
 	// do nothing
 });
 
+bot.on('invite', (message) => {
+	bot.postMessage(message.invite.from, `Thanks for the invite!`);
+	bot.joinRoom(message.invite.room, 0);
+});
+
 module.exports = responder;

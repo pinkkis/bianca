@@ -40,48 +40,47 @@ io.on('connection', (socket) => {
 	socket.emit('botConnected', {
 		rooms: appState.bot.rooms,
 		roster: appState.bot.roster,
-		profile: appState.bot.profile
+		profile: appState.bot.profile,
+		presences: appState.bot.presences
 	});
 
-	appState.bot && appState.bot.on('roomsUpdate', (rooms) => {
-		socket.emit('roomsUpdate', rooms);
+	appState.bot.on('roomsUpdate', (rooms) => {
+		socket.emit('botRooms', rooms);
 	});
 
-	appState.bot && appState.bot.on('rosterUpdate', (roster) => {
-		socket.emit('rosterUpdate', roster);
+	appState.bot.on('rosterUpdate', (roster) => {
+		socket.emit('botRoster', roster);
 	});
 
-	appState.bot && appState.bot.on('message', (message) => {
+	appState.bot.on('message', (message) => {
 		socket.volatile.emit('botMessage', message);
 	});
 
-	appState.bot && appState.bot.on('disconnected', (message) => {
+	appState.bot.on('presenceUpdate', (message) => {
+		socket.volatile.emit('botPresence', appState.bot.presences);
+	});
+
+	appState.bot.on('disconnected', (message) => {
 		socket.emit('botDisconnected', message);
 	});
 
-	appState.bot && appState.bot.on('reconnecting', (message) => {
+	appState.bot.on('reconnecting', (message) => {
 		socket.emit('botReconnecting', message);
 	});
 
-	appState.bot && appState.bot.on('offline', (message) => {
+	appState.bot.on('offline', (message) => {
 		socket.emit('botOffline', message);
 	});
 
-	appState.bot && appState.bot.on('error', (message) => {
+	appState.bot.on('error', (message) => {
 		socket.emit('botError', message);
 	});
 
-	appState.bot && appState.bot.on('startup', (message) => {
+	appState.bot.on('startup', (message) => {
 		socket.emit('botStartup', message);
 	});
 
-	if (appState.bot) {
-		socket.emit('botProfile', appState.bot.profile);
-	} else {
-		appState.bot.on('profile', (profile) => {
-			socket.emit('botProfile', appState.bot.profile);
-		});
-	}
+	socket.emit('botProfile', appState.bot.profile);
 });
 
 server.listen(app.get('port'), '0.0.0.0', () => {

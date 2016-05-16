@@ -35,7 +35,34 @@ function onCommand(message) {
 				return `${message.string} -> score: ${message.sentiment.score}, positive: ${message.sentiment.positive.join(',')}, negative: ${message.sentiment.negative.join(',')}`;
 			});
 
-			bot.postMessage(message.from, `Sentiment results for ${params}:\n${resultStrings.join('\n')}`);
+			bot.postMessage(message.from, `Sentiment results:\n${resultStrings.join('\n')}`);
+			break;
+
+		case 'part':
+			if (message.type === 'chat') {
+				return bot.postMessage(message.from, `Can't 'part' a 1 on 1 conversation, luv.`);
+			}
+
+			bot.postMessage(message.from, `Ok, leaving the room, farewell forever!`);
+			bot.partRoom(message.channel);
+			break;
+
+		case 'join':
+			if (!params) {
+				return bot.postMessage(message.from, `Please provide a room name for me to join.`);
+			}
+
+			let roomIdx = bot.rooms.map((room) => {
+				return room.name.toUpperCase();
+			}).indexOf(params.toUpperCase());
+
+			if (roomIdx > -1) {
+				bot.postMessage(message.from, `Ok, trying to join "${params}".`);
+				bot.joinRoom(bot.rooms[roomIdx].jid, 0);
+			} else {
+				bot.postMessage(message.from, `Sorry, I don't know what room "${params}" is.`);
+			}
+
 			break;
 
 		default:
