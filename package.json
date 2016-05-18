@@ -1,11 +1,16 @@
 {
   "name": "bianca-bot",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Chat bot with a web interface for hipchat and slack",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/pinkkis/bianca-bot"
+    "url": "git+https://github.com/pinkkis/bianca.git"
   },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pinkkis/bianca/issues"
+  },
+  "homepage": "https://github.com/pinkkis/bianca#readme",
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/gulp/bin/gulp test",
@@ -17,7 +22,6 @@
     "hipchat"
   ],
   "author": "@pinkkis",
-  "license": "MIT",
   "dependencies": {
     "amqp-winston": "^1.0.7",
     "bianca-hipchat": "^0.2.2",
