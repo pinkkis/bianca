@@ -6,7 +6,7 @@ module.exports = (() => {
 
 	switch (config.botType) {
 		case 'hipchat':
-			const Hipchat = require('../class/hipchat');
+			const Hipchat = require('bianca-hipchat');
 
 			options = {
 				reconnect: config.reconnect,
@@ -14,7 +14,8 @@ module.exports = (() => {
 				jid: config.credentials.username,
 				password: config.credentials.password,
 				host: config.hipchat.host,
-				mucHost: config.hipchat.mucHost
+				mucHost: config.hipchat.mucHost,
+				logger: require('./logger')
 			};
 
 			return new Hipchat(options);
@@ -22,5 +23,4 @@ module.exports = (() => {
 		default:
 			throw new Error('Only `hipchat` botType supported');
 	}
-
 })();
